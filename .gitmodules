@@ -8,3 +8,6 @@
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
 [submodule "lib\\openzeppelin-contracts"]
 	branch = v4.8.0
+[submodule "foundry/lib/ds-test"]
+	path = foundry/lib/ds-test
+	url = https://github.com/dapphub/ds-test
