@@ -38,7 +38,7 @@ contract AccDepContr is IERC721Receiver {
         uint256 tokenId,
         bytes calldata data
     ) external override returns (bytes4) {
-        return IERC721.onERC721Received.selector;
+        return bytes4(keccak256("onERC721Received(operator, from, tokenId, data)"));
     }
 
 
