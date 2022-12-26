@@ -6,7 +6,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest --watch"
+    "test": "jest --watch",
+    "deploy-contract": "cd foundry && forge script script/AccDepContr.s.sol:MyScript --fork-url http://localhost:8545 --broadcast && forge script script/NftTest.s.sol:MyScript --fork-url http://localhost:8545 --broadcast"
   },
   "dependencies": {
     "@headlessui/react": "^1.4.2",

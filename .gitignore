@@ -38,3 +38,5 @@ yarn-error.log*
 
 /foundry/out
 /foundry/cache
+/foundry/broadcast
+/foundry/.env
