@@ -1,64 +1,96 @@
 import { useState } from "react";
 import type { NextPage } from "next";
-import { useAccount, useBalance } from "wagmi";
-import { Button, Layout, Loader, WalletOptionsModal } from "../components";
+import { useContractRead, useContractReads } from "wagmi";
+import { Layout } from "../components";
+import { Grid, Loading } from "@nextui-org/react";
+import PoolCard from "../components/PoolCard";
+import managerDeployment from "../foundry/broadcast/AccDepContr.s.sol/31337/run-latest.json";
+import { BigNumber } from "ethers";
 
 const Home: NextPage = () => {
   const [showWalletOptions, setShowWalletOptions] = useState(false);
-  const [{ data: accountData, loading: accountLoading }] = useAccount();
-  const [{ data: balanceData, loading: balanceLoading }] = useBalance({
-    addressOrName: accountData?.address,
+  const managerAddress = managerDeployment.transactions[0]
+    .contractAddress as `0x${string}`;
+
+  const { data: numPools } = useContractRead({
+    address: managerAddress,
+    abi: [
+      {
+        inputs: [],
+        name: "numPools",
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+    ],
+    functionName: "numPools",
     watch: true,
   });
 
-  const loading = (accountLoading || balanceLoading) && !balanceData;
-
-  const renderContent = () => {
-    if (loading) return <Loader size={8} />;
-    if (balanceData) {
-      return (
-        <>
-          <h1 className="mb-8 text-4xl font-bold">My Wallet</h1>
-          <div className="inline-flex place-items-center">
-            <h6 className="ml-2 text-2xl">{`Ξ ${Number(
-              balanceData?.formatted
-            ).toFixed(4)} ${balanceData?.symbol}`}</h6>
-          </div>
-        </>
-      );
+  const pools = [];
+  if (numPools) {
+    for (let index = 0; index < numPools.toNumber(); index++) {
+      pools.push({
+        address: managerAddress,
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: "uint256",
+                name: "index",
+                type: "uint256",
+              },
+            ],
+            name: "getPoolAtIndex",
+            outputs: [
+              {
+                internalType: "address",
+                name: "",
+                type: "address",
+              },
+            ],
+            stateMutability: "view",
+            type: "function",
+          },
+        ],
+        functionName: "getPoolAtIndex",
+        args: [BigNumber.from(index.toString())],
+      });
     }
+  }
 
-    return (
-      <>
-        <h1 className="mb-8 text-4xl font-bold">
-          Welcome to the NextJS wagmi template!
-        </h1>
-        <Button
-          loading={accountLoading}
-          onClick={() => setShowWalletOptions(true)}
-        >
-          Connect to Wallet
-        </Button>
-      </>
-    );
-  };
+  const { data: poolsData, isLoading: poolsLoading } = useContractReads({
+    enabled: pools.length > 0,
+    contracts: pools,
+  });
 
   return (
-    <>
-      <WalletOptionsModal
-        open={showWalletOptions}
-        setOpen={setShowWalletOptions}
-      />
-
-      <Layout
-        showWalletOptions={showWalletOptions}
-        setShowWalletOptions={setShowWalletOptions}
-      >
-        <div className="grid h-screen place-items-center">
-          <div className="grid place-items-center">{renderContent()}</div>
-        </div>
-      </Layout>
-    </>
+    <Layout
+      showWalletOptions={showWalletOptions}
+      setShowWalletOptions={setShowWalletOptions}
+    >
+      <div className="md:mt-40 md:px-20">
+        {poolsLoading ? (
+          <Loading type="points" size="sm" />
+        ) : (
+          <Grid.Container gap={2}>
+            {poolsData?.map((pool, index) => {
+              return (
+                <Grid xs={6} md={3} key={index}>
+                  <PoolCard />
+                </Grid>
+              );
+            })}
+          </Grid.Container>
+        )}
+      </div>
+    </Layout>
   );
 };
 

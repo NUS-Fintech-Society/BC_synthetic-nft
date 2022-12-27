@@ -1,8 +1,10 @@
 import Head from "next/head";
 import Image from "next/image";
 import { ReactNode } from "react";
-import { Button, MenuDropdown, WalletOptionsModal } from "..";
+import { WalletOptionsModal } from "..";
 import { useAccount } from "wagmi";
+import { Navbar, Text, Button, Loading, Dropdown } from "@nextui-org/react";
+import { useRouter } from "next/router";
 
 interface Props {
   children: ReactNode;
@@ -13,61 +15,42 @@ interface Props {
 export default function Layout(props: Props) {
   const { children, showWalletOptions, setShowWalletOptions } = props;
 
-  const [{ data: accountData, loading }, disconnect] = useAccount({
-    fetchEns: true,
-  });
+  const { address, isConnecting: accountLoading, connector } = useAccount();
+  const { pathname } = useRouter();
 
   const renderLabel = () => {
-    if (accountData?.ens) {
-      return (
-        <>
-          <div className="relative w-8 h-8 mr-2">
-            {accountData.ens.avatar ? (
-              <Image
-                src={accountData?.ens.avatar}
-                alt="ENS Avatar"
-                layout="fill"
-                objectFit="cover"
-                className="rounded-full"
-              />
-            ) : (
-              <Image
-                src="/images/black-gradient.png"
-                alt="ENS Avatar"
-                layout="fill"
-                objectFit="cover"
-                className="rounded-full"
-              />
-            )}
-          </div>
-          <span className="truncate max-w-[100px]">
-            {accountData.ens?.name}
-          </span>
-        </>
-      );
-    }
-
-    return (
-      <span className="truncate max-w-[150px]">{accountData?.address}</span>
-    );
+    return <span className="truncate max-w-[150px]">{address}</span>;
   };
 
   const renderButton = () => {
-    if (accountData) {
+    if (address) {
       return (
-        <MenuDropdown
-          label={renderLabel()}
-          options={[{ label: "Disconnect", onClick: disconnect }]}
-        />
+        <Dropdown>
+          <Dropdown.Button flat>{renderLabel()}</Dropdown.Button>
+          <Dropdown.Menu
+            aria-label="Static Actions"
+            onAction={connector?.disconnect}
+          >
+            <Dropdown.Item key="disconnect">Disconnect</Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
       );
     }
 
+    const disable = accountLoading || showWalletOptions;
     return (
       <Button
-        loading={loading || showWalletOptions}
+        disabled={disable}
+        auto
+        ghost
+        bordered
         onClick={() => setShowWalletOptions(true)}
       >
-        Connect
+        {disable ? (
+          <Loading type="points" color="currentColor" size="sm" />
+        ) : (
+          "Connect"
+        )}
       </Button>
     );
   };
@@ -75,8 +58,11 @@ export default function Layout(props: Props) {
   return (
     <div>
       <Head>
-        <title>NextJS wagmi</title>
-        <meta name="description" content="NextJS and wagmi template" />
+        <title>Fluidity</title>
+        <meta
+          name="description"
+          content="Giving NFTs liquidity via synthetic tokens"
+        />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -85,16 +71,22 @@ export default function Layout(props: Props) {
         setOpen={setShowWalletOptions}
       />
 
-      <div className="absolute w-screen bg-gradient-to-r from-black to-white">
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center">
-            <h4 className="text-2xl font-bold text-white cursor-default">
-              NextJS wagmi
-            </h4>
-          </div>
-          {renderButton()}
-        </div>
-      </div>
+      <Navbar>
+        <Navbar.Brand>
+          <Text b color="inherit" hideIn="xs">
+            Fluidity
+          </Text>
+        </Navbar.Brand>
+        <Navbar.Content hideIn="xs">
+          <Navbar.Link isActive={pathname == "/"} href="/">
+            Pools
+          </Navbar.Link>
+          <Navbar.Link isActive={pathname == "/positions"} href="/positions">
+            Positions
+          </Navbar.Link>
+        </Navbar.Content>
+        <Navbar.Content>{renderButton()}</Navbar.Content>
+      </Navbar>
       {children}
     </div>
   );
