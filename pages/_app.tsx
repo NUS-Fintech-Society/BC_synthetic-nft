@@ -1,44 +1,46 @@
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
-import { Provider, chain, defaultChains } from "wagmi";
+import { WagmiConfig, createClient, configureChains } from "wagmi";
+import { localhost } from "wagmi/chains";
+import { publicProvider } from "wagmi/providers/public";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
-import { WalletLinkConnector } from "wagmi/connectors/walletLink";
+import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
+import { createTheme, NextUIProvider } from "@nextui-org/react";
 
 const infuraId = process.env.NEXT_PUBLIC_INFURA_ID;
 
-const chains = defaultChains;
+const theme = createTheme({ type: "dark" });
 
-type Connector =
-  | InjectedConnector
-  | WalletConnectConnector
-  | WalletLinkConnector;
-
-const connectors = ({ chainId }: { chainId?: number }): Connector[] => {
-  const rpcUrl =
-    chains.find((x) => x.id === chainId)?.rpcUrls?.[0] ??
-    chain.mainnet.rpcUrls[0];
-  return [
-    new InjectedConnector({ chains }),
+export default function MyApp({ Component, pageProps }: AppProps) {
+  localhost.id = 31337;
+  const { provider } = configureChains([localhost], [publicProvider()]);
+  const connectors = [
+    new InjectedConnector(),
     new WalletConnectConnector({
       options: {
         infuraId,
         qrcode: true,
       },
     }),
-    new WalletLinkConnector({
+    new CoinbaseWalletConnector({
       options: {
         appName: "NextJS-wagmi",
-        jsonRpcUrl: `${rpcUrl}/${infuraId}`,
+        jsonRpcUrl: `${localhost.rpcUrls[0]}/${infuraId}`,
       },
     }),
   ];
-};
+  const client = createClient({
+    autoConnect: true,
+    connectors,
+    provider,
+  });
 
-export default function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <Provider autoConnect connectors={connectors}>
-      <Component {...pageProps} />
-    </Provider>
+    <WagmiConfig client={client}>
+      <NextUIProvider theme={theme}>
+        <Component {...pageProps} />
+      </NextUIProvider>
+    </WagmiConfig>
   );
 }
