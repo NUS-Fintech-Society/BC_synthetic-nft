@@ -13,7 +13,7 @@ const infuraId = process.env.NEXT_PUBLIC_INFURA_ID;
 const theme = createTheme({ type: "dark" });
 
 export default function MyApp({ Component, pageProps }: AppProps) {
-  localhost.id = 31337;
+  localhost.id = 1;
   const { provider } = configureChains([localhost], [publicProvider()]);
   const connectors = [
     new InjectedConnector(),

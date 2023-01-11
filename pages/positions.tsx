@@ -3,7 +3,7 @@ import type { NextPage } from "next";
 import { useAccount, useContractRead, useContractReads } from "wagmi";
 import { Layout, PositionCard } from "../components";
 import { Grid, Loading } from "@nextui-org/react";
-import nftDeployment from "../foundry/broadcast/NftTest.s.sol/31337/run-latest.json";
+import nftDeployment from "../foundry/broadcast/NftTest.s.sol/1/run-latest.json";
 import { BigNumber } from "ethers";
 
 const Positions: NextPage = () => {

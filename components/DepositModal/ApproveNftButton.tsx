@@ -1,6 +1,6 @@
 import { useContractWrite, usePrepareContractWrite } from "wagmi";
 import { Button, Loading } from "@nextui-org/react";
-import managerDeployment from "../../foundry/broadcast/AccDepContr.s.sol/31337/run-latest.json";
+import managerDeployment from "../../foundry/broadcast/AccDepContr.s.sol/1/run-latest.json";
 
 interface Props {
   nftAddress: `0x${string}`;

@@ -4,7 +4,7 @@ import { useContractRead, useContractReads } from "wagmi";
 import { Layout } from "../components";
 import { Grid, Loading } from "@nextui-org/react";
 import PoolCard from "../components/PoolCard";
-import managerDeployment from "../foundry/broadcast/AccDepContr.s.sol/31337/run-latest.json";
+import managerDeployment from "../foundry/broadcast/AccDepContr.s.sol/1/run-latest.json";
 import { BigNumber } from "ethers";
 
 const Home: NextPage = () => {

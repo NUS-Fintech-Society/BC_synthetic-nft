@@ -14,7 +14,7 @@ import {
   useInput,
 } from "@nextui-org/react";
 import { formatEther, parseEther } from "ethers/lib/utils.js";
-import managerDeployment from "../../foundry/broadcast/AccDepContr.s.sol/31337/run-latest.json";
+import managerDeployment from "../../foundry/broadcast/AccDepContr.s.sol/1/run-latest.json";
 import { BigNumber } from "ethers";
 import ApproveNftButton from "./ApproveNftButton";
 
@@ -72,7 +72,7 @@ export default function DepositModal(props: Props) {
   });
 
   const { config } = usePrepareContractWrite({
-    enabled: nftApproved,
+    enabled: nftApproved && parseFloat(value) > 0,
     address: managerAddress,
     abi: [
       {
@@ -87,6 +87,11 @@ export default function DepositModal(props: Props) {
             name: "tokenId",
             type: "uint256",
           },
+          {
+            internalType: "uint256",
+            name: "mintAmount",
+            type: "uint256",
+          },
         ],
         name: "depositFn",
         outputs: [],
@@ -95,7 +100,7 @@ export default function DepositModal(props: Props) {
       },
     ],
     functionName: "depositFn",
-    args: [nftAddress, BigNumber.from(tokenId)],
+    args: [nftAddress, BigNumber.from(tokenId), parseEther("100")],
     overrides: {
       value: value != "" ? parseEther(value) : parseEther("0"),
     },
