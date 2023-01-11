@@ -8,8 +8,8 @@
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
 [submodule "lib\\openzeppelin-contracts"]
 	branch = v4.8.0
-[submodule "foundry/lib/v3-periphery"]
-	path = foundry/lib/v3-periphery
-	url = https://github.com/Uniswap/v3-periphery
-[submodule "lib\\v3-periphery"]
-	branch = v1.3.0
+[submodule "lib/v2-core"]
+	branch = v1.0.1
+[submodule "foundry/lib/v2-periphery"]
+	path = foundry/lib/v2-periphery
+	url = https://github.com/Uniswap/v2-periphery
